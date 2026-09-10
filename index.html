@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>Workout Starter</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+:root{
+  --bg:#000000;
+  --bg-elev:#1c1c1e;
+  --card:#1c1c1e;
+  --card2:#1c1c1e;
+  --text:#ffffff;
+  --text2:#8e8e93;
+  --accent:#0a84ff;      /* iOS ლურჯი — მთავარი აქცენტი */
+  --orange:#ff9f0a;      /* iOS ნარინჯისფერი */
+  --accent2:#ff453a;     /* iOS წითელი — დასვენება/საშიში */
+  --green:#30d158;       /* iOS მწვანე — აქტიური/წარმატება */
+  --border:#2c2c2e;
+  --chip:#1c1c1e;
+  --chip-active:#0a84ff;
+  --chip-active-text:#ffffff;
+  --nav-bg: rgba(28,28,30,0.92);
+  --shadow: 0 4px 14px rgba(0,0,0,0.5);
+  --glow-accent: 0 0 12px rgba(10,132,255,0.4);
+  --glow-green: 0 0 12px rgba(48,209,88,0.4);
+  --glow-orange: 0 0 12px rgba(255,159,10,0.4);
+  --glow-red: 0 0 12px rgba(255,69,58,0.4);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none; -webkit-user-select:none;}
+input, select, textarea{user-select:text; -webkit-user-select:text;}
+html,body{height:100%;}
+body{
+  margin:0; background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  padding-top: env(safe-area-inset-top);
+  overscroll-behavior-y: contain;
+  min-height:100%;
+}
+.screen{display:none; padding:18px 16px; padding-bottom:32px; max-width:560px; margin:0 auto; animation:fade .2s ease;}
+.screen.active{display:block;}
+@keyframes fade{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:translateY(0)}}
+
+h1.page-title{
+  font-size:28px; font-weight:800; margin:6px 0 2px; letter-spacing:-.01em;
+}
+.subtitle{color:var(--text2); font-size:14px; margin-bottom:18px; font-weight:500;}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow);
+  padding:18px; margin-bottom:14px;
+}
+
+.chip-grid{display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px;}
+.chip{
+  padding:11px 16px; border-radius:12px; background:var(--chip); color:var(--text);
+  font-size:14px; font-weight:700; border:1px solid var(--border); cursor:pointer; user-select:none;
+  transition:.15s; letter-spacing:.01em;
+}
+.chip.active{
+  background:var(--chip-active); color:var(--chip-active-text); border-color:var(--chip-active);
+  box-shadow:var(--glow-accent); transform:translateY(-1px);
+}
+
+.btn{
+  display:block; width:100%; padding:17px; border:none; border-radius:14px;
+  font-size:17px; font-weight:700; cursor:pointer; text-align:center;
+}
+.btn-primary{
+  background:var(--accent);
+  color:#ffffff; box-shadow:var(--glow-accent);
+}
+.btn-primary:disabled{background:var(--border); color:var(--text2); box-shadow:none; cursor:not-allowed;}
+.btn-danger{background:var(--accent2); color:#ffffff; box-shadow:var(--glow-red);}
+.btn-secondary{background:var(--chip); color:var(--text); border:1px solid var(--border);}
+.btn-green{background:var(--green); color:#ffffff; box-shadow:var(--glow-green);}
+.btn-block-gap{margin-top:10px;}
+
+input, select{
+  width:100%; padding:13px 14px; border-radius:12px; border:1px solid var(--border);
+  background:var(--bg-elev); color:var(--text); font-size:16px; margin-bottom:12px;
+}
+input:focus, select:focus{outline:none; border-color:var(--accent);}
+label{font-size:12px; color:var(--text2); font-weight:700; display:block; margin-bottom:6px; margin-top:2px; text-transform:uppercase; letter-spacing:.04em;}
+
+.navbar{
+  position:fixed; bottom:0; left:0; right:0;
+  background:var(--nav-bg); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border-top:1px solid var(--border);
+  display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:50;
+}
+.navbtn{
+  flex:1; border:none; background:none; padding:11px 0 9px; font-size:10px; font-weight:600;
+  color:var(--text2); display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer;
+  letter-spacing:.02em;
+}
+.navbtn.active{color:var(--accent);}
+.navbtn.active .ic{filter:drop-shadow(0 0 8px rgba(255,92,26,0.6));}
+.navbtn .ic{font-size:21px;}
+
+.header-top{
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;
+}
+.icon-btn{
+  background:var(--chip); border:1px solid var(--border); width:38px; height:38px; border-radius:12px;
+  font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; color:var(--text);
+}
+
+.link-item{
+  display:flex; align-items:center; justify-content:space-between; padding:14px 4px;
+  border-bottom:1px solid var(--border); gap:10px;
+}
+.link-item:last-child{border-bottom:none;}
+.link-name{font-size:15px; font-weight:800;}
+.set-count-badge{
+  display:inline-block; font-size:12px; font-weight:800; color:var(--accent);
+  background:rgba(10,132,255,0.12); padding:2px 8px; border-radius:8px; margin-left:6px;
+  vertical-align:middle;
+}
+.link-meta{font-size:12px; color:var(--text2); font-weight:600;}
+.link-actions{display:flex; gap:8px;}
+.mini-btn{
+  background:var(--bg-elev); border:1px solid var(--border); padding:9px 12px; border-radius:10px;
+  font-size:13px; font-weight:600; color:var(--accent); cursor:pointer;
+}
+.mini-btn.danger{color:var(--accent2); border-color:rgba(255,69,58,0.3);}
+
+.cat-section-title{
+  font-size:12px; font-weight:700; color:var(--text2); text-transform:uppercase;
+  margin:20px 4px 8px; letter-spacing:.06em;
+}
+
+.tabbar-scroll{display:flex; gap:8px; overflow-x:auto; padding-bottom:10px; margin-bottom:10px; -webkit-overflow-scrolling:touch;}
+.tabbar-scroll::-webkit-scrollbar{display:none;}
+.tab-chip{
+  flex:0 0 auto; padding:10px 16px; border-radius:12px; background:var(--chip); color:var(--text);
+  font-size:14px; font-weight:600; border:1px solid var(--border); white-space:nowrap; cursor:pointer;
+}
+.tab-chip.active{background:var(--chip-active); color:var(--chip-active-text); border-color:var(--chip-active); box-shadow:var(--glow-accent);}
+
+.timer-card{
+  text-align:center; padding:30px 16px; position:relative; overflow:hidden;
+  background:var(--card);
+}
+.timer-label{
+  font-size:12px; color:var(--text2); font-weight:700; margin-bottom:8px;
+  text-transform:uppercase; letter-spacing:.12em;
+}
+.timer-value{
+  font-size:58px; font-weight:700; letter-spacing:1px; font-variant-numeric:tabular-nums;
+  font-family:"SF Mono","Menlo","Courier New",monospace; color:var(--text);
+}
+.exercise-active-name{font-size:16px; font-weight:600; margin-top:8px; color:var(--text2);}
+.timer-card.rest .timer-value{color:var(--accent2); text-shadow:var(--glow-red);}
+.timer-card.work .timer-value{color:var(--green); text-shadow:var(--glow-green);}
+
+.modal-bg{
+  position:fixed; inset:0; background:rgba(0,0,0,0.65); display:none; align-items:flex-end; z-index:100;
+}
+.modal-bg.open{display:flex;}
+.modal-sheet{
+  background:var(--bg-elev); width:100%; border-radius:22px 22px 0 0; padding:20px;
+  padding-bottom:calc(24px + env(safe-area-inset-bottom));
+  max-height:85vh; overflow-y:auto; animation:slideup .2s ease;
+  border-top:1px solid var(--border); border-left:1px solid var(--border); border-right:1px solid var(--border);
+}
+@keyframes slideup{from{transform:translateY(30px); opacity:.5} to{transform:translateY(0); opacity:1}}
+.modal-title{
+  font-size:19px; font-weight:700; margin-bottom:16px;
+}
+
+.empty-state{text-align:center; color:var(--text2); padding:34px 10px; font-size:14px; font-weight:500;}
+
+.back-row{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+.back-btn{
+  background:none; border:none; color:var(--accent); font-size:17px; font-weight:600; cursor:pointer;
+  padding:6px 0;
+}
+
+/* STATS */
+.mode-toggle{display:flex; background:var(--chip); border:1px solid var(--border); border-radius:10px; padding:3px; margin-bottom:14px;}
+.mode-toggle button{
+  flex:1; border:none; background:none; padding:10px 0; border-radius:8px; font-size:14px; font-weight:600;
+  color:var(--text2); cursor:pointer;
+}
+.mode-toggle button.active{background:var(--accent); color:#ffffff; box-shadow:var(--glow-accent);}
+.period-nav{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:8px;}
+.period-nav .icon-btn{flex:0 0 auto;}
+.period-label{font-size:15px; font-weight:700; text-align:center; flex:1;}
+.period-label small{display:block; font-size:12px; color:var(--text2); font-weight:500; margin-top:2px;}
+.summary-circle-wrap{display:flex; align-items:center; gap:18px;}
+.summary-circle{
+  width:88px; height:88px; border-radius:50%; flex:0 0 auto; position:relative;
+  display:flex; align-items:center; justify-content:center;
+  background: conic-gradient(var(--accent) calc(var(--pct)*1%), var(--border) 0);
+  filter:drop-shadow(0 0 10px rgba(10,132,255,0.35));
+}
+.summary-circle::after{
+  content:''; position:absolute; inset:8px; border-radius:50%; background:var(--card);
+}
+.summary-circle-text{position:relative; z-index:1; font-size:19px; font-weight:700; font-family:"SF Mono","Menlo","Courier New",monospace;}
+.summary-sub{font-size:13px; color:var(--text2); margin-top:3px; font-weight:500;}
+.summary-title{font-size:15px; font-weight:600;}
+.cat-stat-row{margin-bottom:15px;}
+.cat-stat-top{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:6px;}
+.cat-stat-name{font-size:15px; font-weight:600;}
+.cat-stat-count{font-size:13px; color:var(--text2); font-weight:600;}
+.cat-stat-count.zero{color:var(--accent2);}
+.bar-track{height:8px; border-radius:5px; background:var(--bg-elev); border:1px solid var(--border); overflow:hidden;}
+.bar-fill{height:100%; border-radius:5px; background:linear-gradient(90deg, var(--accent), var(--green)); transition:width .3s ease;}
+.bar-fill.zero{width:100% !important; background:var(--border);}
+.jump-date-row{display:flex; gap:10px; align-items:center; margin-bottom:10px;}
+.jump-date-row input{margin-bottom:0;}
+.range-picker-row{display:flex; gap:10px; margin-bottom:14px;}
+.range-picker-row label{margin-top:0;}
+.cat-icon{display:inline-flex; vertical-align:-3px;}
+.cat-icon svg{display:block;}
+.stats-meta-row{display:flex; gap:10px; margin-top:16px;}
+.stats-meta-card{
+  flex:1; background:var(--bg-elev); border:1px solid var(--border); border-radius:14px; padding:13px; text-align:center;
+}
+.stats-meta-num{font-size:20px; font-weight:700; font-family:"SF Mono","Menlo","Courier New",monospace; color:var(--accent);}
+.stats-meta-label{font-size:11px; color:var(--text2); margin-top:3px; text-transform:uppercase; letter-spacing:.04em; font-weight:500;}
+
+/* GOOGLE DRIVE SYNC */
+.drive-account-row{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
+.drive-avatar{width:44px; height:44px; border-radius:50%; background:var(--chip); display:flex; align-items:center; justify-content:center; font-size:20px; flex:0 0 auto;}
+.drive-email{font-size:15px; font-weight:600;}
+.drive-status{font-size:13px; color:var(--text2); margin-top:2px;}
+.drive-status.ok{color:var(--green);}
+.drive-status.warn{color:var(--orange);}
+.drive-note{font-size:13px; color:var(--text2); line-height:1.5; margin-bottom:16px;}
+.drive-note code{background:var(--bg-elev); padding:2px 6px; border-radius:6px; font-size:12px;}
+</style>
+</head>
+<body>
+
+<!-- HOME SCREEN -->
+<div class="screen active" id="screen-home">
+  <div class="header-top">
+    <h1 class="page-title">ვარჯიში</h1>
+  </div>
+  <div class="subtitle" id="today-date"></div>
+
+  <div class="card">
+    <label>აირჩიე კუნთის ჯგუფები</label>
+    <div class="chip-grid" id="home-chip-grid"></div>
+    <button class="btn btn-primary" id="start-btn" onclick="startWorkout()" disabled>ვარჯიშის დაწყება</button>
+  </div>
+</div>
+
+<!-- LIBRARY SCREEN -->
+<div class="screen" id="screen-library">
+  <div class="header-top">
+    <h1 class="page-title">ბიბლიოთეკა</h1>
+    <div style="display:flex; gap:8px;">
+      <button class="icon-btn" onclick="openDriveModal()">☁️</button>
+      <button class="icon-btn" onclick="openAddModal()">＋</button>
+    </div>
+  </div>
+  <div class="subtitle">შენახული ვარჯიშის ლინკები</div>
+  <div id="library-list"></div>
+</div>
+
+<!-- ACTIVE WORKOUT SCREEN -->
+<div class="screen" id="screen-active">
+  <div class="back-row">
+    <button class="back-btn" onclick="exitWorkout()">← დასრულება</button>
+  </div>
+  <div class="tabbar-scroll" id="active-tabs"></div>
+
+  <div class="card timer-card" id="timer-card">
+    <div class="timer-label" id="timer-label">აირჩიე ვარჯიში</div>
+    <div class="timer-value" id="timer-value">00:00</div>
+    <div class="exercise-active-name" id="active-exercise-name"></div>
+  </div>
+
+  <button class="btn btn-danger" id="end-set-btn" style="display:none;" onclick="endSet()">სეტის დასრულება / დასვენება</button>
+  <button class="btn btn-secondary btn-block-gap" id="skip-rest-btn" style="display:none;" onclick="skipRest()">დასვენების გამოტოვება</button>
+
+  <div class="cat-section-title">ლინკები</div>
+  <div id="active-links-list"></div>
+</div>
+
+<!-- STATS SCREEN -->
+<div class="screen" id="screen-stats">
+  <div class="header-top">
+    <h1 class="page-title">სტატისტიკა</h1>
+  </div>
+  <div class="subtitle">ნახე რომელ კუნთის ჯგუფებში ჩამორჩი</div>
+
+  <div class="mode-toggle">
+    <button id="mode-week" class="active" onclick="setStatsMode('week')">კვირა</button>
+    <button id="mode-month" onclick="setStatsMode('month')">თვე</button>
+    <button id="mode-range" onclick="setStatsMode('range')">პერიოდი</button>
+  </div>
+
+  <div id="preset-nav-group">
+    <div class="period-nav">
+      <button class="icon-btn" onclick="shiftStatsPeriod(-1)">‹</button>
+      <div class="period-label" id="period-label"></div>
+      <button class="icon-btn" onclick="shiftStatsPeriod(1)">›</button>
+    </div>
+
+    <div class="jump-date-row">
+      <input type="date" id="jump-date-input" onchange="jumpToDate(this.value)">
+      <button class="mini-btn" onclick="jumpToToday()">დღეს</button>
+    </div>
+  </div>
+
+  <div id="range-picker-group" style="display:none;">
+    <div class="range-picker-row">
+      <div style="flex:1;">
+        <label>საწყისი თარიღი</label>
+        <input type="date" id="range-start-input" onchange="onRangeInputChange()">
+      </div>
+      <div style="flex:1;">
+        <label>დასრულების თარიღი</label>
+        <input type="date" id="range-end-input" onchange="onRangeInputChange()">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="summary-circle-wrap">
+      <div class="summary-circle" id="summary-circle" style="--pct:0">
+        <div class="summary-circle-text" id="summary-pct">0%</div>
+      </div>
+      <div>
+        <div class="summary-title">შესრულებული ჯგუფები</div>
+        <div class="summary-sub" id="summary-sub">0 / 8 კუნთის ჯგუფი</div>
+      </div>
+    </div>
+    <div class="stats-meta-row">
+      <div class="stats-meta-card">
+        <div class="stats-meta-num" id="meta-sets">0</div>
+        <div class="stats-meta-label">სეტი</div>
+      </div>
+      <div class="stats-meta-card">
+        <div class="stats-meta-num" id="meta-time">0</div>
+        <div class="stats-meta-label">წუთი</div>
+      </div>
+      <div class="stats-meta-card">
+        <div class="stats-meta-num" id="meta-days">0</div>
+        <div class="stats-meta-label">აქტიური დღე</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="cat-stats-card"></div>
+</div>
+
+<div class="navbar">
+  <button class="navbtn active" id="nav-home" onclick="showScreen('home')"><span class="ic">🏠</span>მთავარი</button>
+  <button class="navbtn" id="nav-library" onclick="showScreen('library')"><span class="ic">📚</span>ბიბლიოთეკა</button>
+  <button class="navbtn" id="nav-stats" onclick="showScreen('stats')"><span class="ic">📊</span>სტატისტიკა</button>
+</div>
+
+<!-- ADD/EDIT MODAL -->
+<div class="modal-bg" id="modal-bg" onclick="closeModalBg(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title">ახალი ლინკი</div>
+    <label>დასახელება</label>
+    <input type="text" id="input-name" placeholder="მაგ. ჰანტელით პრესი">
+    <label>კუნთის ჯგუფი</label>
+    <select id="input-category"></select>
+    <label>URL (Instagram, YouTube და ა.შ.)</label>
+    <input type="url" id="input-url" placeholder="https://...">
+    <button class="btn btn-primary" onclick="saveLink()">შენახვა</button>
+    <button class="btn btn-secondary btn-block-gap" onclick="closeModal()">გაუქმება</button>
+  </div>
+</div>
+
+<!-- GOOGLE DRIVE SYNC MODAL -->
+<div class="modal-bg" id="drive-modal-bg" onclick="closeDriveModalBg(event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()">
+    <div class="modal-title">Google Drive სინქრონიზაცია</div>
+
+    <div id="drive-signed-out-view">
+      <div class="drive-note">
+        დაუკავშირდი Google ანგარიშს, რომ ლინკები და ვარჯიშის ისტორია ავტომატურად შეინახო შენს Google Drive-ში (<code>WorkoutApp</code> საქაღალდეში) და ახალი მოწყობილობიდანაც წამოიღო იგივე მონაცემები.
+      </div>
+      <button class="btn btn-primary" id="drive-signin-btn" onclick="driveSignIn()">Google-ით შესვლა</button>
+      <div class="drive-status" id="drive-config-warning" style="margin-top:10px;"></div>
+    </div>
+
+    <div id="drive-signed-in-view" style="display:none;">
+      <div class="drive-account-row">
+        <div class="drive-avatar" id="drive-avatar">👤</div>
+        <div>
+          <div class="drive-email" id="drive-email">—</div>
+          <div class="drive-status ok" id="drive-sync-status">დაკავშირებულია</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="driveUpload()">⬆️ ატვირთვა Drive-ზე</button>
+      <button class="btn btn-secondary btn-block-gap" onclick="driveDownload()">⬇️ ჩამოტვირთვა Drive-დან</button>
+      <button class="btn btn-secondary btn-block-gap" onclick="driveSignOut()">გამოსვლა</button>
+    </div>
+
+    <button class="btn btn-secondary btn-block-gap" onclick="closeDriveModal()">დახურვა</button>
+  </div>
+</div>
+
+<script>
+const CATEGORIES = ["მკერდი","ბიცეფსი","მხარი","ტრიცეფსი","ფეხი","ზურგი","პრესი","გაწელვები"];
+const CATEGORY_ICONS = {
+  "მკერდი":"🏋️", "ბიცეფსი":"💪", "მხარი":"🤸", "ტრიცეფსი":"🔱",
+  "ფეხი":"🦵", "გაწელვები":"🧘"
+};
+// ზურგისა და პრესისთვის საკუთარი, ვექტორული (SVG) კუნთის იკონები —
+// ნამდვილი ფოტოს ნაცვლად, რადგან ოფლაინ ერთფაილიან აპში გარე სურათის ჩატვირთვა შეუძლებელია.
+const CATEGORY_ICON_SVG = {
+  "ზურგი": `<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+    <path d="M12 2c-1.4 0-2.4 1.1-2.4 2.5 0 .8.3 1.5.8 2C7 7.6 4.6 11 4.3 15c-.2 2.2.3 4.4.3 4.4l2.1-.2c.2-1.7.6-3.9 1.3-5.4-.1 2 0 3.8.2 5.6l2.1-.1c-.1-2.3-.1-4.6.1-6.8h1.4c.2 2.2.2 4.5.1 6.8l2.1.1c.2-1.8.3-3.6.2-5.6.7 1.5 1.1 3.7 1.3 5.4l2.1.2s.5-2.2.3-4.4c-.3-4-2.7-7.4-6.1-8.5.5-.5.8-1.2.8-2C14.4 3.1 13.4 2 12 2z"/>
+  </svg>`,
+  "პრესი": `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" xmlns="http://www.w3.org/2000/svg">
+    <rect x="7" y="2.5" width="10" height="19" rx="3.2"/>
+    <line x1="12" y1="2.5" x2="12" y2="21.5"/>
+    <line x1="7.6" y1="8" x2="16.4" y2="8"/>
+    <line x1="7.6" y1="12.7" x2="16.4" y2="12.7"/>
+    <line x1="7.6" y1="17.3" x2="16.4" y2="17.3"/>
+  </svg>`
+};
+function catIconHTML(cat){
+  if(CATEGORY_ICON_SVG[cat]) return `<span class="cat-icon">${CATEGORY_ICON_SVG[cat]}</span>`;
+  return CATEGORY_ICONS[cat] || '';
+}
+function catLabel(cat){ return `${catIconHTML(cat)} ${cat}`; }
+const STORAGE_KEY = "workoutLinks_v1";
+const THEME_KEY = "workoutTheme_v1";
+const SESSIONS_KEY = "workoutSessions_v1";
+
+let statsMode = 'week'; // 'week' | 'month' | 'range'
+let statsAnchorDate = new Date(); // any date within the currently viewed period
+let customRangeEnd = new Date();
+let customRangeStart = (function(){ const d = new Date(); d.setDate(d.getDate()-6); return d; })();
+
+let selectedHomeCats = new Set();
+let activeWorkoutCats = [];
+let activeTab = null;
+let editingId = null;
+
+let workTimerInterval = null;
+let workSeconds = 0;
+let workStartTimestamp = null; // Date.now() when the current set started — used to compute real elapsed time
+let restInterval = null;
+let restSeconds = 120;
+let restEndTimestamp = null; // Date.now() + duration — used to compute real remaining time
+let restAlreadyFired = false; // guards against double-firing the alarm on rapid visibility changes
+let currentExerciseName = "";
+let workoutRunning = false; // true if a work timer is currently counting
+let sessionSetCounts = {}; // { linkId: count } — resets each time a new workout session starts
+let wakeLockRef = null;
+
+function loadLinks(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveLinks(links){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(links));
+}
+
+function uid(){ return 'l_' + Date.now() + '_' + Math.random().toString(36).slice(2,7); }
+
+// ---------- SESSIONS (completed sets log, for stats) ----------
+function loadSessions(){
+  try{
+    const raw = localStorage.getItem(SESSIONS_KEY);
+    return raw ? JSON.parse(raw) : [];
+  }catch(e){ return []; }
+}
+function saveSessions(sessions){
+  localStorage.setItem(SESSIONS_KEY, JSON.stringify(sessions));
+}
+function toDateStr(d){
+  const y = d.getFullYear();
+  const m = (d.getMonth()+1).toString().padStart(2,'0');
+  const day = d.getDate().toString().padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function recordSession(category, exerciseName, durationSeconds){
+  const sessions = loadSessions();
+  sessions.push({
+    id: uid(),
+    date: toDateStr(new Date()),
+    category,
+    exerciseName,
+    durationSeconds,
+    timestamp: Date.now()
+  });
+  saveSessions(sessions);
+}
+
+// ---------- DATE (Georgian) ----------
+const DAYS = ['კვირა','ორშაბათი','სამშაბათი','ოთხშაბათი','ხუთშაბათი','პარასკევი','შაბათი'];
+const MONTHS = ['იანვარი','თებერვალი','მარტი','აპრილი','მაისი','ივნისი','ივლისი','აგვისტო','სექტემბერი','ოქტომბერი','ნოემბერი','დეკემბერი'];
+function renderDate(){
+  const d = new Date();
+  const str = `${DAYS[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  document.getElementById('today-date').textContent = str;
+}
+
+// ---------- HOME SCREEN ----------
+function renderHomeChips(){
+  const grid = document.getElementById('home-chip-grid');
+  grid.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const b = document.createElement('button');
+    b.className = 'chip' + (selectedHomeCats.has(cat) ? ' active' : '');
+    b.innerHTML = catLabel(cat);
+    b.onclick = ()=>{
+      if(selectedHomeCats.has(cat)) selectedHomeCats.delete(cat);
+      else selectedHomeCats.add(cat);
+      renderHomeChips();
+      document.getElementById('start-btn').disabled = selectedHomeCats.size === 0;
+    };
+    grid.appendChild(b);
+  });
+}
+
+function startWorkout(){
+  if(selectedHomeCats.size === 0) return;
+  activeWorkoutCats = Array.from(selectedHomeCats);
+  activeTab = activeWorkoutCats[0];
+  sessionSetCounts = {};
+  resetTimersUI();
+  renderActiveTabs();
+  renderActiveLinksList();
+  showScreen('active');
+}
+
+function exitWorkout(){
+  clearInterval(workTimerInterval); workTimerInterval = null;
+  clearInterval(restInterval); restInterval = null;
+  releaseWakeLock();
+  showScreen('home');
+}
+
+// ---------- WAKE LOCK (keep screen on during rest, so the alarm can actually play) ----------
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator){
+      wakeLockRef = await navigator.wakeLock.request('screen');
+    }
+  }catch(e){ /* not supported or denied — silently ignore */ }
+}
+function releaseWakeLock(){
+  if(wakeLockRef){
+    try{ wakeLockRef.release(); }catch(e){}
+    wakeLockRef = null;
+  }
+}
+document.addEventListener('visibilitychange', async ()=>{
+  if(document.visibilityState === 'visible'){
+    // Re-sync both timers against real elapsed wall-clock time, in case
+    // the browser throttled/paused our setInterval while the screen was off or the app was backgrounded.
+    if(workTimerInterval && workStartTimestamp){
+      workSeconds = Math.floor((Date.now() - workStartTimestamp) / 1000);
+      document.getElementById('timer-value').textContent = fmt(workSeconds);
+    }
+    if(restInterval && restEndTimestamp){
+      const remaining = Math.round((restEndTimestamp - Date.now()) / 1000);
+      restSeconds = Math.max(remaining, 0);
+      document.getElementById('timer-value').textContent = fmt(restSeconds);
+      if(restSeconds <= 0 && !restAlreadyFired){
+        finishRestCountdown();
+      }
+      await requestWakeLock(); // re-acquire wake lock if the tab regains visibility mid-rest
+    }
+  }
+});
+
+
+// ---------- LIBRARY ----------
+function renderLibrary(){
+  const list = document.getElementById('library-list');
+  const links = loadLinks();
+  list.innerHTML = '';
+  if(links.length === 0){
+    list.innerHTML = '<div class="empty-state">ჯერ არცერთი ლინკი არ დამატებულა.<br>დააჭირე ➕ ზედა კუთხეში.</div>';
+    return;
+  }
+  CATEGORIES.forEach(cat=>{
+    const items = links.filter(l=>l.category===cat);
+    if(items.length===0) return;
+    const title = document.createElement('div');
+    title.className = 'cat-section-title';
+    title.innerHTML = catLabel(cat);
+    list.appendChild(title);
+    const card = document.createElement('div');
+    card.className = 'card';
+    items.forEach(item=>{
+      const row = document.createElement('div');
+      row.className = 'link-item';
+      row.innerHTML = `
+        <div>
+          <div class="link-name">${escapeHtml(item.name)}</div>
+          <div class="link-meta">${escapeHtml(item.url)}</div>
+        </div>
+        <div class="link-actions">
+          <button class="mini-btn" onclick="openEditModal('${item.id}')">რედაქტ.</button>
+          <button class="mini-btn danger" onclick="deleteLink('${item.id}')">წაშლა</button>
+        </div>`;
+      card.appendChild(row);
+    });
+    list.appendChild(card);
+  });
+}
+
+function escapeHtml(s){
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+function openAddModal(){
+  editingId = null;
+  document.getElementById('modal-title').textContent = 'ახალი ლინკი';
+  document.getElementById('input-name').value = '';
+  document.getElementById('input-url').value = '';
+  populateCategorySelect();
+  document.getElementById('modal-bg').classList.add('open');
+}
+function openEditModal(id){
+  const links = loadLinks();
+  const item = links.find(l=>l.id===id);
+  if(!item) return;
+  editingId = id;
+  document.getElementById('modal-title').textContent = 'ლინკის რედაქტირება';
+  document.getElementById('input-name').value = item.name;
+  document.getElementById('input-url').value = item.url;
+  populateCategorySelect(item.category);
+  document.getElementById('modal-bg').classList.add('open');
+}
+function populateCategorySelect(selected){
+  const sel = document.getElementById('input-category');
+  sel.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const opt = document.createElement('option');
+    opt.value = cat; opt.textContent = cat;
+    if(cat === selected) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+function closeModal(){
+  document.getElementById('modal-bg').classList.remove('open');
+}
+function closeModalBg(e){
+  if(e.target.id === 'modal-bg') closeModal();
+}
+function saveLink(){
+  const name = document.getElementById('input-name').value.trim();
+  const category = document.getElementById('input-category').value;
+  const url = document.getElementById('input-url').value.trim();
+  if(!name || !url){ alert('შეავსე დასახელება და URL'); return; }
+  let links = loadLinks();
+  if(editingId){
+    links = links.map(l=> l.id===editingId ? {...l, name, category, url} : l);
+  } else {
+    links.push({id: uid(), name, category, url});
+  }
+  saveLinks(links);
+  closeModal();
+  renderLibrary();
+  if(document.getElementById('screen-active').classList.contains('active')){
+    renderActiveLinksList();
+  }
+}
+function deleteLink(id){
+  if(!confirm('წავშალო ეს ლინკი?')) return;
+  let links = loadLinks().filter(l=>l.id!==id);
+  saveLinks(links);
+  renderLibrary();
+  if(document.getElementById('screen-active').classList.contains('active')){
+    renderActiveLinksList();
+  }
+}
+
+// ---------- ACTIVE WORKOUT ----------
+function renderActiveTabs(){
+  const bar = document.getElementById('active-tabs');
+  bar.innerHTML = '';
+  activeWorkoutCats.forEach(cat=>{
+    const b = document.createElement('button');
+    b.className = 'tab-chip' + (cat===activeTab ? ' active' : '');
+    b.innerHTML = catLabel(cat);
+    b.onclick = ()=>{ activeTab = cat; renderActiveTabs(); renderActiveLinksList(); };
+    bar.appendChild(b);
+  });
+}
+function renderActiveLinksList(){
+  const list = document.getElementById('active-links-list');
+  const links = loadLinks().filter(l=>l.category===activeTab);
+  list.innerHTML = '';
+  if(links.length===0){
+    list.innerHTML = '<div class="empty-state">ამ ჯგუფისთვის ლინკი არ არის დამატებული.</div>';
+    return;
+  }
+  const card = document.createElement('div');
+  card.className = 'card';
+  links.forEach(item=>{
+    const row = document.createElement('div');
+    row.className = 'link-item';
+    const count = sessionSetCounts[item.id] || 0;
+    const badge = count > 0 ? `<span class="set-count-badge">×${count}</span>` : '';
+    row.innerHTML = `
+      <div>
+        <div class="link-name">${escapeHtml(item.name)} ${badge}</div>
+        <div class="link-meta">${catLabel(item.category)}</div>
+      </div>
+      <div class="link-actions">
+        <button class="mini-btn" onclick="openLinkAndStart('${item.id}')">▶ დაწყება</button>
+      </div>`;
+    card.appendChild(row);
+  });
+  list.appendChild(card);
+}
+
+function openLinkAndStart(id){
+  const item = loadLinks().find(l=>l.id===id);
+  if(!item) return;
+  sessionSetCounts[id] = (sessionSetCounts[id] || 0) + 1;
+  window.open(item.url, '_blank');
+  startWorkTimer(item.name, id);
+  renderActiveLinksList();
+}
+
+function resetTimersUI(){
+  clearInterval(workTimerInterval); workTimerInterval = null;
+  clearInterval(restInterval); restInterval = null;
+  workSeconds = 0; restSeconds = 120; workoutRunning = false;
+  currentExerciseName = "";
+  const tCard = document.getElementById('timer-card');
+  tCard.classList.remove('rest','work');
+  document.getElementById('timer-label').textContent = 'აირჩიე ვარჯიში';
+  document.getElementById('timer-value').textContent = '00:00';
+  document.getElementById('active-exercise-name').textContent = '';
+  document.getElementById('end-set-btn').style.display = 'none';
+  document.getElementById('skip-rest-btn').style.display = 'none';
+}
+
+function fmt(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,'0');
+  const s = (sec%60).toString().padStart(2,'0');
+  return `${m}:${s}`;
+}
+
+let currentExerciseId = null;
+
+function startWorkTimer(name, linkId){
+  clearInterval(restInterval); restInterval = null;
+  releaseWakeLock();
+  document.getElementById('skip-rest-btn').style.display = 'none';
+  currentExerciseName = name;
+  currentExerciseId = linkId || null;
+  workSeconds = 0;
+  workStartTimestamp = Date.now();
+  workoutRunning = true;
+  const tCard = document.getElementById('timer-card');
+  tCard.classList.remove('rest'); tCard.classList.add('work');
+  document.getElementById('timer-label').textContent = 'სეტის დრო';
+  const setNum = linkId ? (sessionSetCounts[linkId] || 1) : null;
+  document.getElementById('active-exercise-name').textContent = setNum ? `${name} · სეტი #${setNum}` : name;
+  document.getElementById('timer-value').textContent = fmt(0);
+  document.getElementById('end-set-btn').style.display = 'block';
+
+  clearInterval(workTimerInterval);
+  workTimerInterval = setInterval(()=>{
+    // Always derive from real elapsed wall-clock time, not a naive tick counter —
+    // this keeps the display correct even if the interval was throttled while backgrounded.
+    workSeconds = Math.floor((Date.now() - workStartTimestamp) / 1000);
+    document.getElementById('timer-value').textContent = fmt(workSeconds);
+  }, 1000);
+}
+
+function endSet(){
+  clearInterval(workTimerInterval); workTimerInterval = null;
+  workoutRunning = false;
+  document.getElementById('end-set-btn').style.display = 'none';
+  if(activeTab && currentExerciseName){
+    recordSession(activeTab, currentExerciseName, workSeconds);
+  }
+  startRestCountdown();
+}
+
+function startRestCountdown(){
+  restSeconds = 120;
+  restEndTimestamp = Date.now() + 120000;
+  restAlreadyFired = false;
+  const tCard = document.getElementById('timer-card');
+  tCard.classList.remove('work'); tCard.classList.add('rest');
+  document.getElementById('timer-label').textContent = 'დასვენება';
+  document.getElementById('timer-value').textContent = fmt(restSeconds);
+  document.getElementById('skip-rest-btn').style.display = 'block';
+  requestWakeLock(); // keep screen awake so the end-of-rest alarm can actually play
+
+  clearInterval(restInterval);
+  restInterval = setInterval(()=>{
+    // Always derive remaining time from the real end timestamp, not a naive tick counter —
+    // this way, even if the interval was throttled while the screen was off, the moment
+    // the app becomes visible again it immediately shows the correct time and fires the alarm.
+    const remaining = Math.round((restEndTimestamp - Date.now()) / 1000);
+    restSeconds = Math.max(remaining, 0);
+    document.getElementById('timer-value').textContent = fmt(restSeconds);
+    if(restSeconds <= 0 && !restAlreadyFired){
+      finishRestCountdown();
+    }
+  }, 1000);
+}
+
+function finishRestCountdown(){
+  restAlreadyFired = true;
+  clearInterval(restInterval); restInterval = null;
+  document.getElementById('timer-label').textContent = 'დასვენება დასრულდა';
+  document.getElementById('timer-value').textContent = '00:00';
+  document.getElementById('skip-rest-btn').style.display = 'none';
+  playBeepAndVibrate();
+  releaseWakeLock();
+}
+
+function skipRest(){
+  clearInterval(restInterval); restInterval = null;
+  restAlreadyFired = true;
+  releaseWakeLock();
+  document.getElementById('skip-rest-btn').style.display = 'none';
+  document.getElementById('timer-card').classList.remove('rest');
+  document.getElementById('timer-label').textContent = 'აირჩიე ვარჯიში';
+  document.getElementById('timer-value').textContent = '00:00';
+  document.getElementById('active-exercise-name').textContent = '';
+}
+
+function playBeepAndVibrate(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const beepCount = 8; // longer alarm-style sequence instead of a short chime
+    for(let i=0;i<beepCount;i++){
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square'; // sharper, more alarm-like tone than sine
+      osc.frequency.value = i % 2 === 0 ? 880 : 660;
+      gain.gain.value = 0.35;
+      osc.connect(gain); gain.connect(ctx.destination);
+      const startAt = ctx.currentTime + i*0.4;
+      osc.start(startAt);
+      osc.stop(startAt + 0.3);
+    }
+  }catch(e){ /* audio not available */ }
+  if(navigator.vibrate){
+    navigator.vibrate([400,150,400,150,400,150,400,150,400]);
+  }
+}
+
+// ---------- STATS ----------
+function getWeekRange(date){
+  // week starts Monday
+  const d = new Date(date);
+  const day = d.getDay(); // 0=Sun..6=Sat
+  const diffToMonday = (day === 0 ? -6 : 1 - day);
+  const monday = new Date(d);
+  monday.setHours(0,0,0,0);
+  monday.setDate(d.getDate() + diffToMonday);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+  return {start: monday, end: sunday};
+}
+function getMonthRange(date){
+  const d = new Date(date);
+  const start = new Date(d.getFullYear(), d.getMonth(), 1, 0,0,0,0);
+  const end = new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59,999);
+  return {start, end};
+}
+function getCurrentRange(){
+  if(statsMode === 'week') return getWeekRange(statsAnchorDate);
+  if(statsMode === 'month') return getMonthRange(statsAnchorDate);
+  // range mode
+  const startVal = document.getElementById('range-start-input').value;
+  const endVal = document.getElementById('range-end-input').value;
+  const start = startVal ? new Date(startVal + 'T00:00:00') : new Date(customRangeStart);
+  const end = endVal ? new Date(endVal + 'T23:59:59') : new Date(customRangeEnd);
+  return {start, end};
+}
+function shortDate(d){
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+}
+function renderPeriodLabel(range){
+  const label = document.getElementById('period-label');
+  if(statsMode === 'week'){
+    label.innerHTML = `${shortDate(range.start)} – ${shortDate(range.end)}<small>${range.start.getFullYear()}</small>`;
+  } else if(statsMode === 'month'){
+    label.innerHTML = `${MONTHS[statsAnchorDate.getMonth()]}<small>${statsAnchorDate.getFullYear()}</small>`;
+  }
+  // range mode has no period-label (hidden), nothing to render there
+}
+function setStatsMode(mode){
+  statsMode = mode;
+  document.getElementById('mode-week').classList.toggle('active', mode==='week');
+  document.getElementById('mode-month').classList.toggle('active', mode==='month');
+  document.getElementById('mode-range').classList.toggle('active', mode==='range');
+  document.getElementById('preset-nav-group').style.display = (mode==='range') ? 'none' : 'block';
+  document.getElementById('range-picker-group').style.display = (mode==='range') ? 'block' : 'none';
+  if(mode==='range'){
+    document.getElementById('range-start-input').value = toDateStr(customRangeStart);
+    document.getElementById('range-end-input').value = toDateStr(customRangeEnd);
+  }
+  renderStats();
+}
+function onRangeInputChange(){
+  const startVal = document.getElementById('range-start-input').value;
+  const endVal = document.getElementById('range-end-input').value;
+  if(startVal) customRangeStart = new Date(startVal + 'T00:00:00');
+  if(endVal) customRangeEnd = new Date(endVal + 'T23:59:59');
+  if(customRangeStart > customRangeEnd){
+    // keep the range sane by swapping
+    const tmp = customRangeStart; customRangeStart = customRangeEnd; customRangeEnd = tmp;
+    document.getElementById('range-start-input').value = toDateStr(customRangeStart);
+    document.getElementById('range-end-input').value = toDateStr(customRangeEnd);
+  }
+  renderStats();
+}
+function shiftStatsPeriod(dir){
+  if(statsMode === 'week'){
+    statsAnchorDate.setDate(statsAnchorDate.getDate() + dir*7);
+  } else if(statsMode === 'month'){
+    statsAnchorDate.setMonth(statsAnchorDate.getMonth() + dir);
+  }
+  statsAnchorDate = new Date(statsAnchorDate);
+  renderStats();
+}
+function jumpToDate(value){
+  if(!value) return;
+  statsAnchorDate = new Date(value + 'T00:00:00');
+  renderStats();
+}
+function jumpToToday(){
+  statsAnchorDate = new Date();
+  document.getElementById('jump-date-input').value = toDateStr(new Date());
+  renderStats();
+}
+
+function renderStats(){
+  const range = getCurrentRange();
+  if(statsMode !== 'range') renderPeriodLabel(range);
+
+  const sessions = loadSessions().filter(s=>{
+    const sd = new Date(s.date + 'T12:00:00');
+    return sd >= range.start && sd <= range.end;
+  });
+
+  // per-category counts
+  const counts = {};
+  CATEGORIES.forEach(c=>counts[c]=0);
+  let totalSeconds = 0;
+  const activeDays = new Set();
+  sessions.forEach(s=>{
+    counts[s.category] = (counts[s.category]||0) + 1;
+    totalSeconds += (s.durationSeconds||0);
+    activeDays.add(s.date);
+  });
+
+  const doneCategories = CATEGORIES.filter(c=>counts[c] > 0).length;
+  const pct = Math.round((doneCategories / CATEGORIES.length) * 100);
+
+  document.getElementById('summary-circle').style.setProperty('--pct', pct);
+  document.getElementById('summary-pct').textContent = pct + '%';
+  document.getElementById('summary-sub').textContent = `${doneCategories} / ${CATEGORIES.length} კუნთის ჯგუფი`;
+
+  document.getElementById('meta-sets').textContent = sessions.length;
+  document.getElementById('meta-time').textContent = Math.round(totalSeconds/60);
+  document.getElementById('meta-days').textContent = activeDays.size;
+
+  const maxCount = Math.max(1, ...CATEGORIES.map(c=>counts[c]));
+  const catCard = document.getElementById('cat-stats-card');
+  catCard.innerHTML = '';
+  CATEGORIES.forEach(cat=>{
+    const c = counts[cat];
+    const row = document.createElement('div');
+    row.className = 'cat-stat-row';
+    const widthPct = c === 0 ? 0 : Math.max(8, Math.round((c/maxCount)*100));
+    row.innerHTML = `
+      <div class="cat-stat-top">
+        <span class="cat-stat-name">${catLabel(cat)}</span>
+        <span class="cat-stat-count ${c===0?'zero':''}">${c===0 ? 'არ შესრულებულა' : c + ' სეტი'}</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill ${c===0?'zero':''}" style="width:${widthPct}%"></div></div>
+    `;
+    catCard.appendChild(row);
+  });
+}
+
+// ---------- SCREEN NAV ----------
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.getElementById('nav-home').classList.toggle('active', name==='home');
+  document.getElementById('nav-library').classList.toggle('active', name==='library');
+  document.getElementById('nav-stats').classList.toggle('active', name==='stats');
+  if(name==='library') renderLibrary();
+  if(name==='home'){ renderDate(); renderHomeChips(); }
+  if(name==='stats'){
+    document.getElementById('jump-date-input').value = toDateStr(statsAnchorDate);
+    renderStats();
+  }
+}
+
+// warn before leaving mid work-timer (best effort, mobile browsers often ignore)
+window.addEventListener('beforeunload', function(e){
+  if(workoutRunning){
+    e.preventDefault();
+    e.returnValue = '';
+  }
+});
+
+// ---------- GOOGLE DRIVE SYNC ----------
+// ⚠️ აქ ჩასვი შენი საკუთარი Google OAuth Client ID (იხ. ინსტრუქცია ჩატში)
+const DRIVE_CLIENT_ID = '286148320939-28vo91lj4geki422v030p9kuprl8c0t8.apps.googleusercontent.com';
+const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/userinfo.email';
+const DRIVE_FOLDER_NAME = 'WorkoutApp';
+const DRIVE_FILE_NAME = 'workout-data.json';
+
+let driveTokenClient = null;
+let driveAccessToken = null;
+let driveFolderId = localStorage.getItem('driveFolderId') || null;
+let driveFileId = localStorage.getItem('driveFileId') || null;
+
+function openDriveModal(){
+  document.getElementById('drive-modal-bg').classList.add('open');
+  updateDriveConfigWarning();
+}
+function closeDriveModal(){ document.getElementById('drive-modal-bg').classList.remove('open'); }
+function closeDriveModalBg(e){ if(e.target.id === 'drive-modal-bg') closeDriveModal(); }
+
+function updateDriveConfigWarning(){
+  const warn = document.getElementById('drive-config-warning');
+  const btn = document.getElementById('drive-signin-btn');
+  if(DRIVE_CLIENT_ID.indexOf('YOUR_GOOGLE_OAUTH_CLIENT_ID') !== -1){
+    warn.textContent = '⚠️ ჯერ არ არის მითითებული Google Client ID კოდში (DRIVE_CLIENT_ID ცვლადი).';
+    warn.className = 'drive-status warn';
+    btn.disabled = true;
+  } else {
+    warn.textContent = '';
+    btn.disabled = false;
+  }
+}
+
+function ensureTokenClient(){
+  if(driveTokenClient) return driveTokenClient;
+  if(!window.google || !google.accounts || !google.accounts.oauth2){
+    alert('Google-ის სერვისი ჯერ არ ჩატვირთულა, სცადე ხელახლა წამში.');
+    return null;
+  }
+  driveTokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: DRIVE_CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: async (resp)=>{
+      if(resp.error){ alert('ავტორიზაცია ვერ მოხერხდა: ' + resp.error); return; }
+      driveAccessToken = resp.access_token;
+      await onDriveSignedIn();
+    }
+  });
+  return driveTokenClient;
+}
+
+function driveSignIn(){
+  const tc = ensureTokenClient();
+  if(!tc) return;
+  tc.requestAccessToken({prompt: driveAccessToken ? '' : 'consent'});
+}
+
+function driveSignOut(){
+  if(driveAccessToken && window.google && google.accounts && google.accounts.oauth2){
+    google.accounts.oauth2.revoke(driveAccessToken, ()=>{});
+  }
+  driveAccessToken = null;
+  document.getElementById('drive-signed-in-view').style.display = 'none';
+  document.getElementById('drive-signed-out-view').style.display = 'block';
+}
+
+async function onDriveSignedIn(){
+  document.getElementById('drive-signed-out-view').style.display = 'none';
+  document.getElementById('drive-signed-in-view').style.display = 'block';
+  const statusEl = document.getElementById('drive-sync-status');
+  statusEl.textContent = 'დაკავშირება...';
+  try{
+    const info = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+      headers:{Authorization:'Bearer ' + driveAccessToken}
+    }).then(r=>r.json());
+    document.getElementById('drive-email').textContent = info.email || 'Google ანგარიში';
+    if(info.picture){
+      document.getElementById('drive-avatar').innerHTML = `<img src="${info.picture}" style="width:100%;height:100%;border-radius:50%;">`;
+    }
+  }catch(e){ /* non-fatal, sign-in itself succeeded */ }
+  statusEl.textContent = 'დაკავშირებულია';
+  statusEl.className = 'drive-status ok';
+}
+
+async function driveApiFetch(url, options={}){
+  options.headers = Object.assign({}, options.headers, {Authorization: 'Bearer ' + driveAccessToken});
+  const res = await fetch(url, options);
+  if(!res.ok){
+    const text = await res.text();
+    throw new Error('Drive API შეცდომა (' + res.status + '): ' + text);
+  }
+  return res;
+}
+
+async function findOrCreateFolder(){
+  if(driveFolderId) return driveFolderId;
+  const q = encodeURIComponent(`mimeType='application/vnd.google-apps.folder' and name='${DRIVE_FOLDER_NAME}' and trashed=false`);
+  const searchRes = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
+  const searchData = await searchRes.json();
+  if(searchData.files && searchData.files.length > 0){
+    driveFolderId = searchData.files[0].id;
+  } else {
+    const createRes = await driveApiFetch('https://www.googleapis.com/drive/v3/files', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({name: DRIVE_FOLDER_NAME, mimeType:'application/vnd.google-apps.folder'})
+    });
+    const createData = await createRes.json();
+    driveFolderId = createData.id;
+  }
+  localStorage.setItem('driveFolderId', driveFolderId);
+  return driveFolderId;
+}
+
+async function findFile(folderId){
+  if(driveFileId) return driveFileId;
+  const q = encodeURIComponent(`'${folderId}' in parents and name='${DRIVE_FILE_NAME}' and trashed=false`);
+  const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id,name)`);
+  const data = await res.json();
+  if(data.files && data.files.length > 0){
+    driveFileId = data.files[0].id;
+    localStorage.setItem('driveFileId', driveFileId);
+    return driveFileId;
+  }
+  return null;
+}
+
+function buildBackupPayload(){
+  return JSON.stringify({
+    links: loadLinks(),
+    sessions: loadSessions(),
+    exportedAt: new Date().toISOString()
+  }, null, 2);
+}
+
+async function driveUpload(){
+  if(!driveAccessToken){ alert('ჯერ დაუკავშირდი Google-ს.'); return; }
+  const statusEl = document.getElementById('drive-sync-status');
+  statusEl.textContent = 'ტვირთვა...';
+  try{
+    const folderId = await findOrCreateFolder();
+    const fileId = await findFile(folderId);
+    const payload = buildBackupPayload();
+    if(fileId){
+      await driveApiFetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+        method:'PATCH',
+        headers:{'Content-Type':'application/json'},
+        body: payload
+      });
+    } else {
+      const boundary = 'workoutapp_boundary';
+      const metadata = {name: DRIVE_FILE_NAME, parents:[folderId], mimeType:'application/json'};
+      const multipartBody =
+        `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${JSON.stringify(metadata)}\r\n` +
+        `--${boundary}\r\nContent-Type: application/json\r\n\r\n${payload}\r\n` +
+        `--${boundary}--`;
+      const createRes = await driveApiFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method:'POST',
+        headers:{'Content-Type': `multipart/related; boundary=${boundary}`},
+        body: multipartBody
+      });
+      const createData = await createRes.json();
+      driveFileId = createData.id;
+      localStorage.setItem('driveFileId', driveFileId);
+    }
+    statusEl.textContent = 'შენახულია Drive-ზე ✓ (' + new Date().toLocaleTimeString('ka-GE') + ')';
+    statusEl.className = 'drive-status ok';
+  }catch(e){
+    statusEl.textContent = 'შეცდომა ატვირთვისას';
+    statusEl.className = 'drive-status warn';
+    alert(e.message);
+  }
+}
+
+async function driveDownload(){
+  if(!driveAccessToken){ alert('ჯერ დაუკავშირდი Google-ს.'); return; }
+  if(!confirm('ეს გადაწერს შენს ამჟამინდელ ლოკალურ მონაცემებს Drive-ზე შენახული ვერსიით. გავაგრძელო?')) return;
+  const statusEl = document.getElementById('drive-sync-status');
+  statusEl.textContent = 'ჩამოტვირთვა...';
+  try{
+    const folderId = await findOrCreateFolder();
+    const fileId = await findFile(folderId);
+    if(!fileId){
+      alert('Drive-ზე ჯერ არ არსებობს შენახული ფაილი. ჯერ გააკეთე „ატვირთვა Drive-ზე".');
+      statusEl.textContent = 'დაკავშირებულია';
+      statusEl.className = 'drive-status ok';
+      return;
+    }
+    const res = await driveApiFetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
+    const data = await res.json();
+    if(Array.isArray(data.links)) saveLinks(data.links);
+    if(Array.isArray(data.sessions)) saveSessions(data.sessions);
+    statusEl.textContent = 'წამოღებულია Drive-დან ✓ (' + new Date().toLocaleTimeString('ka-GE') + ')';
+    statusEl.className = 'drive-status ok';
+    renderLibrary();
+    if(document.getElementById('screen-home').classList.contains('active')) renderHomeChips();
+    if(document.getElementById('screen-stats').classList.contains('active')) renderStats();
+  }catch(e){
+    statusEl.textContent = 'შეცდომა ჩამოტვირთვისას';
+    statusEl.className = 'drive-status warn';
+    alert(e.message);
+  }
+}
+
+// init
+renderDate();
+renderHomeChips();
+</script>
+</body>
+</html>
